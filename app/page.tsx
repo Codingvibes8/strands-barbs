@@ -1,19 +1,34 @@
 
-import { Button } from "@/components/ui/button"
- 
+import { PricingSection } from "@/components/pricing-section"
+import {Hero}  from "@/components/hero"
+import { Services } from "@/components/services"
+import {GallerySection} from "@/components/gallery-section";
+import {ContactSection} from "@/components/contact-section";
+
+
+
 export default function Home() {
   return (
-    <div className="py-20 min-h-screen flex flex-col items-center justify-center ">
-     
-     
-    
-      <p className=" text-lg text-center text-red-800 font-bold">
-        This is a simple example of a Next.js application with a custom layout.
-      </p>
-      <div>
-      <Button className="bg-blue-800">Click me</Button>
-    </div>
-  
-    </div>
-  );
-}
+      <section>
+        <Hero/>
+        {/* Services Section */}
+        <section id="services">
+          <Services/>
+        </section>
+          {/* Pricing Section */}
+          <section id="pricing">
+            <PricingSection/>
+          </section>
+
+          {/* Gallery Section */}
+          <section id="gallery">
+            <GallerySection/>
+          </section>
+
+          {/* Contact Section */}
+          <section id="contact">
+            <ContactSection/>
+          </section>
+        </section>
+        )
+        }

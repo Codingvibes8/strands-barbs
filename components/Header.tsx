@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { Menu, X } from "lucide-react"
-import { BookingButton } from "@/components/booking-button"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
 import { navItems } from "@/lib/navLinks"
 
 export function Header() {
@@ -35,10 +36,9 @@ export function Header() {
     }
 
     window.addEventListener("scroll", handleScroll)
+    handleScroll() // Call once to set initial state
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
-
- 
 
   const handleNavClick = (href: string) => {
     const targetId = href.substring(1)
@@ -51,82 +51,99 @@ export function Header() {
         top: elementPosition,
         behavior: "smooth",
       })
+      setActiveSection(targetId)
     }
     setIsMobileMenuOpen(false)
   }
 
   return (
-    <header
-      className={`fixed h-16 top-0 w-full z-50 transition-all duration-300 ${
-        isScrolled ? "bg-orange-600  shadow- shadow-slate-50" : "bg-blue-500"
-      }`}
-    >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="text-[20px] font-bold text-blue-950">
-          Strands<span className="text-blue-200">X</span>
-          </div>
+      <header
+          className={`fixed h-16 top-0 w-full z-50 transition-all duration-300 ${
+              isScrolled ? "bg-orange-600 shadow-lg shadow-slate-900/20" : "bg-blue-500"
+          }`}
+      >
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="text-[20px] font-bold text-slate-200 flex items-center gap-2">
+              <Image
+                  src={"/icons/scissors.svg"}
+                  alt="scissors logo"
+                  width={30}
+                  height={30}
+                  className={"bg-white p-1 rounded-full mr-0 ring-blue-800 ring-4"}
+              />
+              <span className="text-yellow-200">StrandsX</span>
+            </div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-2">
-            {navItems.map((item) => {
-              const isActive = activeSection === item.href.substring(1)
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => handleNavClick(item.href)}
-                  className={`px-4 py-2 rounded-lg transition-all duration-200 relative ${
-                    isActive
-                      ? "text-white font-semibold"
-                      : "text-cream hover:text-white hover:bg-blue-800/30 hover:font-bold"
-                  }`}
-                >
-                  <div className="text-sm text-amber-50">{item.name}</div>
-                  {isActive && (
-                    <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-8 h-0.5 bg-black rounded-full" />
-                  )}
-                </button>
-              )
-            })}
-            <BookingButton className="ml-4 bg-blue-600 hover:bg-primary/90 text-black font-semibold ring-2 ring-amber-50">
-              Book Now
-            </BookingButton>
-          </nav>
-
-          {/* Mobile Menu Button */}
-          <button className="md:hidden text-cream" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMobileMenuOpen && (
-          <nav className="md:hidden bg-black/95 backdrop-blur-sm border-t border-primary/20">
-            <div className="px-4 py-4 space-y-2">
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-2">
               {navItems.map((item) => {
                 const isActive = activeSection === item.href.substring(1)
                 return (
-                  <button
-                    key={item.name}
-                    onClick={() => handleNavClick(item.href)}
-                    className={`block w-full text-left px-4 py-3 rounded-lg transition-all duration-200 relative ${
-                      isActive
-                        ? "text-black bg-primary font-semibold"
-                        : "text-cream hover:text-primary"
-                    }`}
-                  >
-                    {item.name}
-                    {isActive && <div className="absolute bottom-1 left-4 w-6 h-0.5 bg-black rounded-full" />}
-                  </button>
+                    <button
+                        key={item.name}
+                        onClick={() => handleNavClick(item.href)}
+                        className={`group px-4 py-2 rounded-lg transition-all duration-200 relative ${
+                            isActive
+                                ? "text-white font-semibold"
+                                : "text-amber-50 hover:text-white hover:bg-blue-800/30 hover:font-bold"
+                        }`}
+                    >
+                      <div className="text-sm">{item.name}</div>
+                      <div
+                          className={`pointer-events-none absolute left-2 right-2 bottom-0 h-0.5 rounded-full bg-amber-200 transform transition-all duration-300 origin-center ${
+                              isActive
+                                  ? "opacity-100 scale-x-100"
+                                  : "opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100"
+                          }`}
+                      />
+                    </button>
                 )
               })}
-              <BookingButton className="w-full mt-4 bg-yellow-600 hover:bg-primary/90 text-black font-semibold">
+              <Button className="ml-4 bg-blue-600 hover:bg-blue-700 text-slate-200 font-semibold ring-2 ring-amber-50">
                 Book Now
-              </BookingButton>
-            </div>
-          </nav>
-        )}
-      </div>
-    </header>
+              </Button>
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <button className="md:hidden text-amber-50" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isMobileMenuOpen && (
+              <nav className="md:hidden bg-black/95 backdrop-blur-sm border-t border-amber-200/20">
+                <div className="px-4 py-4 space-y-2">
+                  {navItems.map((item) => {
+                    const isActive = activeSection === item.href.substring(1)
+                    return (
+                        <button
+                            key={item.name}
+                            onClick={() => handleNavClick(item.href)}
+                            className={`group block w-full text-left px-4 py-3 rounded-lg transition-all duration-200 relative ${
+                                isActive ? "text-black bg-amber-200 font-semibold" : "text-amber-50 hover:text-amber-200"
+                            }`}
+                        >
+                          {item.name}
+                          <div
+                              className={`pointer-events-none absolute left-4 right-4 bottom-1 h-0.5 rounded-full bg-amber-200 transform transition-all duration-300 origin-center ${
+                                  isActive
+                                      ? "opacity-100 scale-x-100"
+                                      : "opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100"
+                              }`}
+                          />
+                        </button>
+                    )
+                  })}
+                  <Button className="w-full mt-4 bg-yellow-600 hover:bg-yellow-700 text-black font-semibold">
+                    Book Now
+                  </Button>
+                </div>
+              </nav>
+          )}
+        </div>
+      </header>
   )
 }
