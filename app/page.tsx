@@ -4,17 +4,26 @@ import {Hero}  from "@/components/hero"
 import { Services } from "@/components/services"
 import {GallerySection} from "@/components/gallery-section";
 import {ContactSection} from "@/components/contact-section";
+import {TeamSection} from "@/components/team-section";
 
 
 
 export default function Home() {
   return (
       <section>
+          <section id={'home'}>
         <Hero/>
+          </section>
+
         {/* Services Section */}
         <section id="services">
           <Services/>
         </section>
+
+          {/* Team Section */}
+          <section id="team">
+              <TeamSection />
+          </section>
           {/* Pricing Section */}
           <section id="pricing">
             <PricingSection/>
