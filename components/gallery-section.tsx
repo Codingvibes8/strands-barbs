@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-
+import Image from "next/image"
 const galleryImages = [
     {
         id: 1,
@@ -117,9 +117,9 @@ export function GallerySection() {
                             onClick={() => setSelectedImage(image)}
                         >
                             <div className="relative overflow-hidden">
-                                <img
+                                <Image
                                     src={image.src || "/placeholder.svg"}
-                                    alt={image.alt}
+                                    alt={image.alt} width={400} height={400}
                                     className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
