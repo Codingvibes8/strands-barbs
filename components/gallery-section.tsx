@@ -152,9 +152,9 @@ export function GallerySection() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
-                            <img
+                            <Image
                                 src={selectedImage.src || "/placeholder.svg"}
-                                alt={selectedImage.alt}
+                                alt={selectedImage.alt} width={400} height={400}
                                 className="w-full h-auto max-h-[80vh] object-contain"
                             />
                             <div className="p-6">

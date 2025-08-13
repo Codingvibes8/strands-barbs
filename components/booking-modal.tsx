@@ -1,16 +1,35 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog"
+import React, { useEffect, useMemo, useState } from "react"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogClose,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import { Calendar, Clock, User, Phone, Mail, Scissors, Loader2 } from "lucide-react"
+import {
+    Calendar,
+    Clock,
+    User,
+    Phone,
+    Mail,
+    Scissors,
+    Loader2,
+} from "lucide-react"
 
 interface BookingModalProps {
     isOpen: boolean
@@ -18,7 +37,14 @@ interface BookingModalProps {
     selectedService?: string
 }
 
-const services = [
+type Service = {
+    id: string
+    name: string
+    price: string
+    duration: string
+}
+
+const services: Service[] = [
     { id: "classic", name: "Classic Cut", price: "£20", duration: "30 min" },
     { id: "premium", name: "Premium Style", price: "£35", duration: "45 min" },
     { id: "executive", name: "Executive Package", price: "£60", duration: "90 min" },
@@ -48,10 +74,20 @@ const timeSlots = [
     "5:30 PM",
 ]
 
+type FormData = {
+    service: string
+    date: string
+    time: string
+    name: string
+    email: string
+    phone: string
+    notes: string
+}
+
 export function BookingModal({ isOpen, onClose, selectedService }: BookingModalProps) {
     const { toast } = useToast()
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         service: selectedService || "",
         date: "",
         time: "",
@@ -61,33 +97,41 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
         notes: "",
     })
 
+    // Keep service in sync if parent updates selectedService
+    useEffect(() => {
+        if (selectedService) {
+            setFormData((prev) => ({ ...prev, service: selectedService }))
+        }
+    }, [selectedService])
+
+    const todayStr = useMemo(() => new Date().toISOString().split("T")[0], [])
+
+    const selectedServiceDetails = useMemo(
+        () => services.find((s) => s.id === formData.service),
+        [formData.service]
+    )
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
-
         try {
             const response = await fetch("/api/appointments", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             })
-
             const data = await response.json()
-
             if (!response.ok) {
-                throw new Error(data.error || "Failed to book appointment")
+                throw new Error(data?.error || "Failed to book appointment")
             }
 
-            // Show success message
             toast({
-                title: "Appointment Booked!",
+                title: "Appointment booked!",
                 description: "We'll contact you shortly to confirm your appointment.",
                 duration: 5000,
             })
 
-            // Reset form and close modal
+            // Reset and close
             setFormData({
                 service: "",
                 date: "",
@@ -101,8 +145,9 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
         } catch (error) {
             console.error("Error booking appointment:", error)
             toast({
-                title: "Booking Failed",
-                description: error instanceof Error ? error.message : "Something went wrong. Please try again.",
+                title: "Booking failed",
+                description:
+                    error instanceof Error ? error.message : "Something went wrong. Please try again.",
                 variant: "destructive",
                 duration: 5000,
             })
@@ -111,31 +156,37 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
         }
     }
 
-    const selectedServiceDetails = services.find((s) => s.id === formData.service)
-
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog
+            open={isOpen}
+            onOpenChange={(open) => {
+                if (!open) onClose()
+            }}
+        >
             <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-2xl">
                         <Scissors className="h-6 w-6 text-amber-600" />
                         Book Your Appointment
                     </DialogTitle>
+                    <DialogDescription>
+                        Choose your service and preferred time. We’ll confirm the details via email or phone.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Service Selection */}
                     <div className="space-y-2">
                         <Label htmlFor="service" className="text-sm font-medium">
-                            Select Service *
+                            Select Service
                         </Label>
                         <Select
                             value={formData.service}
                             onValueChange={(value) => setFormData((prev) => ({ ...prev, service: value }))}
-                            required
                             disabled={isSubmitting}
+                            required
                         >
-                            <SelectTrigger>
+                            <SelectTrigger id="service" aria-label="Service">
                                 <SelectValue placeholder="Choose your service" />
                             </SelectTrigger>
                             <SelectContent>
@@ -144,20 +195,23 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
                                         <div className="flex justify-between items-center w-full">
                                             <span>{service.name}</span>
                                             <span className="text-amber-600 font-medium ml-4">
-                        {service.price} • {service.duration}
-                      </span>
+                          {service.price} • {service.duration}
+                        </span>
                                         </div>
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
+
                         {selectedServiceDetails && (
                             <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
                                 <div className="flex justify-between items-center">
                                     <span className="font-medium">{selectedServiceDetails.name}</span>
                                     <span className="text-amber-600 font-semibold">{selectedServiceDetails.price}</span>
                                 </div>
-                                <p className="text-sm text-gray-600 mt-1">Duration: {selectedServiceDetails.duration}</p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                    Duration: {selectedServiceDetails.duration}
+                                </p>
                             </div>
                         )}
                     </div>
@@ -167,14 +221,14 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
                         <div className="space-y-2">
                             <Label htmlFor="date" className="text-sm font-medium flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
-                                Preferred Date *
+                                Preferred Date
                             </Label>
                             <Input
                                 id="date"
                                 type="date"
                                 value={formData.date}
                                 onChange={(e) => setFormData((prev) => ({ ...prev, date: e.target.value }))}
-                                min={new Date().toISOString().split("T")[0]}
+                                min={todayStr}
                                 required
                                 disabled={isSubmitting}
                                 className="w-full"
@@ -184,15 +238,15 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
                         <div className="space-y-2">
                             <Label htmlFor="time" className="text-sm font-medium flex items-center gap-2">
                                 <Clock className="h-4 w-4" />
-                                Preferred Time *
+                                Preferred Time
                             </Label>
                             <Select
                                 value={formData.time}
                                 onValueChange={(value) => setFormData((prev) => ({ ...prev, time: value }))}
-                                required
                                 disabled={isSubmitting}
+                                required
                             >
-                                <SelectTrigger>
+                                <SelectTrigger id="time" aria-label="Time">
                                     <SelectValue placeholder="Select time" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -215,7 +269,7 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
 
                         <div className="space-y-2">
                             <Label htmlFor="name" className="text-sm font-medium">
-                                Full Name *
+                                Full Name
                             </Label>
                             <Input
                                 id="name"
@@ -232,7 +286,7 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
                                     <Mail className="h-4 w-4" />
-                                    Email *
+                                    Email
                                 </Label>
                                 <Input
                                     id="email"
@@ -248,7 +302,7 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
                             <div className="space-y-2">
                                 <Label htmlFor="phone" className="text-sm font-medium flex items-center gap-2">
                                     <Phone className="h-4 w-4" />
-                                    Phone *
+                                    Phone
                                 </Label>
                                 <Input
                                     id="phone"
@@ -277,17 +331,14 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
                         </div>
                     </div>
 
-                    {/* Submit Buttons */}
+                    {/* Actions */}
                     <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={onClose}
-                            className="flex-1 bg-transparent"
-                            disabled={isSubmitting}
-                        >
-                            Cancel
-                        </Button>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline" className="flex-1 bg-transparent" disabled={isSubmitting}>
+                                Cancel
+                            </Button>
+                        </DialogClose>
+
                         <Button type="submit" className="flex-1 bg-amber-600 hover:bg-amber-700 text-white" disabled={isSubmitting}>
                             {isSubmitting ? (
                                 <>
@@ -304,3 +355,5 @@ export function BookingModal({ isOpen, onClose, selectedService }: BookingModalP
         </Dialog>
     )
 }
+
+export default BookingModal
