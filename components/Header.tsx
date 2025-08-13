@@ -59,7 +59,7 @@ export function Header() {
   return (
       <header
           className={`fixed h-16 top-0 w-full z-50 transition-all duration-300 ${
-              isScrolled ? "bg-orange-600 shadow-lg shadow-slate-900/20" : "bg-blue-500"
+              isScrolled ? "bg-blue-800 shadow-lg shadow-slate-900/20" : "bg-blue-500"
           }`}
       >
         <div className="container mx-auto px-4">
@@ -114,7 +114,7 @@ export function Header() {
 
           {/* Mobile Navigation */}
           {isMobileMenuOpen && (
-              <nav className="md:hidden bg-black/95 backdrop-blur-sm border-t border-amber-200/20">
+              <nav className="md:hidden bg-blue-800 border-t border-amber-200/20 w-full h-screen">
                 <div className="px-4 py-4 space-y-2">
                   {navItems.map((item) => {
                     const isActive = activeSection === item.href.substring(1)

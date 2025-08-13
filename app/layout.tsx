@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Roboto, Roboto_Mono } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
+import {Header} from "@/components/Header";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -172,6 +173,7 @@ export default function RootLayout({
         `}</style>
       </head>
       <body className="font-sans">
+      <Header/>
       {children}
       <Toaster />
       </body>
